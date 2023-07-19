@@ -20,6 +20,7 @@ import {
 import { Heart } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 
+export const runtime = 'edge';
 export default function InferenceApiTester() {
 
     const {

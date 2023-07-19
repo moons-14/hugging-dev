@@ -1,6 +1,7 @@
 import { AppList } from "@/components/apps";
 import Link from "next/link";
 
+export const runtime = 'edge';
 export default function Home() {
   return (
     <main className="">
