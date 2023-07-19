@@ -1,2 +1,2 @@
 export * from "./AppHeader"
-export * from "./PresetShare"
+export * from "./AppShare"

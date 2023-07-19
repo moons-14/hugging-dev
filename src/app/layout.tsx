@@ -18,9 +18,23 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AppHeader />
-        {children}
+        <RootLayoutComponent>{children}</RootLayoutComponent>
       </body>
     </html>
+  )
+}
+
+export const RootLayoutComponent = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => {
+  return (
+    <>
+      <AppHeader />
+      <div className="container mx-auto px-2">
+        {children}
+      </div>
+    </>
   )
 }

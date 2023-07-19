@@ -31,10 +31,12 @@ import { Label } from "@/components/ui/label"
 import { DotsHorizontalIcon } from "@radix-ui/react-icons"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
+import { useSettingStore } from "@/stores/settingStore"
 
-export function PresetActions() {
+export function AppActions() {
     const [open, setIsOpen] = React.useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = React.useState(false)
+    const { useChatGptAssist, setUseChatGptAssist } = useSettingStore()
 
     return (
         <>
@@ -47,40 +49,43 @@ export function PresetActions() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuItem onSelect={() => setIsOpen(true)}>
-                        Content filter preferences
+                        User Preferences
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onSelect={() => setShowDeleteDialog(true)}
                         className="text-red-600"
                     >
-                        Delete preset
+                        Report an app
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
             <Dialog open={open} onOpenChange={setIsOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Content filter preferences</DialogTitle>
+                        <DialogTitle>User Preferences</DialogTitle>
                         <DialogDescription>
-                            The content filter flags text that may violate our content policy.
-                            It&apos;s powered by our moderation endpoint which is free to use
-                            to moderate your OpenAI API traffic. Learn more.
+                            User-specific settings can be configured.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="py-6">
                         <h4 className="text-sm text-muted-foreground">
-                            Playground Warnings
+                            Beta Features
                         </h4>
                         <div className="flex items-start justify-between space-x-4 pt-3">
-                            <Switch name="show" id="show" defaultChecked={true} />
+                            <Switch
+                                name="show"
+                                id="show"
+                                defaultChecked={useChatGptAssist}
+                                onCheckedChange={setUseChatGptAssist}
+                            />
                             <Label className="grid gap-1 font-normal" htmlFor="show">
                                 <span className="font-semibold">
-                                    Show a warning when content is flagged
+                                    Enable ChatGPT assist
                                 </span>
                                 <span className="text-sm text-muted-foreground">
-                                    A warning will be shown when sexual, hateful, violent or
-                                    self-harm content is detected.
+                                    You can perform operations within the application in a chat format.
+                                    An OpenAI API key must be set for execution.
                                 </span>
                             </Label>
                         </div>
@@ -95,24 +100,21 @@ export function PresetActions() {
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>Having trouble with your application?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This action cannot be undone. This preset will no longer be
-                            accessible by you or others you&apos;ve shared it with.
+                            Please feel free to contact us if you have any problems or comments with the application.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <Button
-                            variant="destructive"
+                            variant="link"
                             onClick={() => {
                                 setShowDeleteDialog(false)
-                                toast({
-                                    description: "This preset has been deleted.",
-                                })
+                                window.open("https://twitter.com/moons_dev")
                             }}
                         >
-                            Delete
+                            @moons_dev
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>
