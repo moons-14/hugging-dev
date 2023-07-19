@@ -11,9 +11,12 @@ export function AppShare() {
 
     const [url, setUrl] = useState("")
 
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+
     useEffect(() => {
         setUrl(window.location.href)
-    }, [])
+    }, [pathname, searchParams])
 
     return (
         <Popover>
