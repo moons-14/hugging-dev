@@ -8,7 +8,7 @@ import { toast } from "@/components/ui/use-toast"
 import { useHeaderStore } from "@/stores/headerStore"
 import { useSettingStore } from "@/stores/settingStore"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { use, useCallback, useEffect, useState } from "react"
 import {
     Card,
     CardContent,
@@ -19,6 +19,9 @@ import {
 } from "@/components/ui/card"
 import { Heart } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { HistoryCard } from "@/components/App"
+import { useHistoryStore } from "@/stores/historyStore"
 
 export const runtime = 'edge';
 export default function InferenceApiTester() {
@@ -52,6 +55,15 @@ export default function InferenceApiTester() {
     const [outputText, setOutputText] = useState<string>("");
     const [outputImg, setOutputImg] = useState<string>("");
 
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname()
+
+    const {
+        setHistory,
+        history
+    } = useHistoryStore()
+
     useEffect(() => {
         setUseApp({
             id: "inference-api-tester",
@@ -62,6 +74,22 @@ export default function InferenceApiTester() {
             setUseApp(null)
         }
     }, [])
+
+    const createQueryString = useCallback(
+        (name: string, value: string) => {
+            const params = new URLSearchParams(searchParams as any)
+            params.set(name, value)
+
+            return params.toString()
+        },
+        [searchParams]
+    )
+
+    useEffect(() => {
+        if (searchParams.has("modelUrl")) {
+            setTempModelUrl("https://huggingface.co/" + searchParams.get("modelUrl"))
+        }
+    }, [searchParams])
 
     const loadModel = async () => {
         if (tempModelUrl === "") {
@@ -90,12 +118,14 @@ export default function InferenceApiTester() {
             return null;
         }
 
+
         if ((tempModelUrl.startsWith("https://huggingface.co/") && url.pathname != "/") || tempModelUrl.startsWith("https://api-inference.huggingface.co/models")) {
 
             const modelApiURL = tempModelUrl.startsWith("https://api-inference.huggingface.co/models") ? tempModelUrl : "https://api-inference.huggingface.co/models" + url.pathname;
 
             try {
                 const modelInfo = (await axios.get(modelApiURL)).data;
+
                 setModelInfo({
                     id: modelInfo.id,
                     sha: modelInfo.sha,
@@ -110,6 +140,8 @@ export default function InferenceApiTester() {
                     inference: modelInfo.cardData && modelInfo.cardData.inference == false ? false : true,
                 });
                 setModelUrl(modelApiURL);
+                router.push(pathname + '?' + createQueryString('modelUrl', modelInfo.modelId))
+                setHistory([modelInfo.modelId, ...history.filter((historyItem) => historyItem !== modelInfo.modelId).slice(0, 20)])
 
             } catch (error: any) {
                 if (error.response && error.response.status === 404) {
@@ -244,6 +276,13 @@ export default function InferenceApiTester() {
                         })
                         return null;
                     }
+                    if (error.response.status == 503) {
+                        toast({
+                            title: "Loading model...",
+                            description: "Please run again in one minute.",
+                        })
+                        return null;
+                    }
                     toast({
                         title: error.response.status,
                         description: "Try again.",
@@ -264,6 +303,11 @@ export default function InferenceApiTester() {
                 title: "Please enter model URL and API key",
             })
         }
+    }
+
+    const clickHistory = async (item: string) => {
+        setTempModelUrl("https://huggingface.co/" + item)
+        await loadModel()
     }
 
     return (<>
@@ -292,8 +336,16 @@ export default function InferenceApiTester() {
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label>2. Enter the API key for Hugging Face</Label>
-                        <small>All APIs are used only for calling specified services and are managed in the browser. Service developers cannot read them.</small>
+                        <Label>2. Enter Access Tokens for Hugging Face</Label>
+                        <small>All APIs are used only for calling specified services and are managed in the browser. Service developers cannot read them.
+                            <a
+                                href="https://huggingface.co/settings/tokens"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                How to get an Access Tokens for Hugging Face
+                            </a>
+                        </small>
                         <Input
                             type="text"
                             placeholder="*****************"
@@ -312,43 +364,48 @@ export default function InferenceApiTester() {
                     <div className="grid w-full gap-6 lg:flex mt-4">
 
                         {modelInfo ? <>
-                            <div className="flex justify-center">
-                                <a
-                                    href={
-                                        "https://huggingface.co/" + modelInfo.modelId
-                                    }
-                                    target="_blank"
-                                    rel="noreferrer"
-                                >
-                                    <Card>
-                                        <CardHeader>
-                                            <CardTitle className="text-2xl">
-                                                {
-                                                    modelInfo.modelId
-                                                }
-                                            </CardTitle>
-                                            <CardDescription>{
-                                                modelInfo.library_name
-                                            }</CardDescription>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="flex gap-4">
-                                                <div>
-                                                    <span className="text-muted-foreground">Likes:</span>
-                                                    <span className="ml-2">{modelInfo.likes}</span>
+                            <div className="w-full lg:w-1/3 break-all flex flex-wrap gap-4">
+                                <div className="w-full max-md:flex-1 max-sm:w-full">
+                                    <a
+                                        href={
+                                            "https://huggingface.co/" + modelInfo.modelId
+                                        }
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle className="text-2xl">
+                                                    {
+                                                        modelInfo.modelId
+                                                    }
+                                                </CardTitle>
+                                                <CardDescription>{
+                                                    modelInfo.library_name
+                                                }</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="flex gap-4 flex-wrap">
+                                                    <div>
+                                                        <span className="text-muted-foreground">Likes:</span>
+                                                        <span className="ml-2">{modelInfo.likes}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-muted-foreground">Downloads:</span>
+                                                        <span className="ml-2">{modelInfo.downloads}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="text-muted-foreground">Private:</span>
+                                                        <span className="ml-2">{modelInfo.private ? "YES" : "NO"}</span>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <span className="text-muted-foreground">Downloads:</span>
-                                                    <span className="ml-2">{modelInfo.downloads}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="text-muted-foreground">Private:</span>
-                                                    <span className="ml-2">{modelInfo.private ? "YES" : "NO"}</span>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </a>
+                                            </CardContent>
+                                        </Card>
+                                    </a>
+                                </div>
+                                <div className="w-full max-md:flex-1 max-sm:w-full">
+                                    <HistoryCard onClick={clickHistory} />
+                                </div>
                             </div>
                             <div className="flex-1">
                                 <div>
@@ -470,7 +527,11 @@ export default function InferenceApiTester() {
                                             </>
                                 }
                             </div>
-                        </> : <></>}
+                        </> : <>
+                            <div className="w-full md:w-1/2 lg:w-1/3">
+                                <HistoryCard onClick={clickHistory} />
+                            </div>
+                        </>}
                     </div>
                 </div>
             </div>

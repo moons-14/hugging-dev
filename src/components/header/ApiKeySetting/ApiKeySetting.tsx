@@ -52,11 +52,11 @@ export function ApiKeySetting() {
                     <div className="grid gap-2">
                         <Label htmlFor="hugging-face-api-key">
                             <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noreferrer">
-                                Hugging Face API KEY
+                                Hugging Face  Access Tokens
                                 <ExternalLink className="inline-block ml-2" size={14} />
                             </a>
                         </Label>
-                        <Input id="hugging-face-api-key" placeholder="Hugging Face API KEY"
+                        <Input id="hugging-face-api-key" placeholder="Hugging Face Access Tokens"
                             value={huggingFaceApiKey}
                             onChange={(e) => setHuggingFaceApiKey(e.target.value)}
                         />
