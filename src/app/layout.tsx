@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from "@/components/ui/toaster"
+import { RootLayoutComponent } from '@/components/layout'
 
 export const runtime = 'edge';
 const inter = Inter({ subsets: ['latin'] })
@@ -23,21 +24,5 @@ export default function RootLayout({
         <RootLayoutComponent>{children}</RootLayoutComponent>
       </body>
     </html>
-  )
-}
-
-export const RootLayoutComponent = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
-  return (
-    <>
-      <AppHeader />
-      <div className="container mx-auto px-4 ">
-        {children}
-      </div>
-      <Toaster />
-    </>
   )
 }

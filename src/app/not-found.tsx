@@ -1,5 +1,5 @@
 import { Error404 } from '@/components/error'
-import { RootLayoutComponent } from './layout'
+import { RootLayoutComponent } from '@/components/layout';
 
 export const runtime = 'edge';
 export default function NotFound() {
