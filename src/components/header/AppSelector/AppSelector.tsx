@@ -20,17 +20,27 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { AppData } from "@/appData/apps"
+import { useEffect } from "react"
+import { useHeaderStore } from "@/stores/headerStore"
 
 
 interface AppSelectorProps extends PopoverProps {
-    appsData: AppData[],
-    defaultApp?: AppData
+    appsData: AppData[]
 }
 
-export function AppSelector({ appsData, defaultApp, ...props }: AppSelectorProps) {
+export function AppSelector({ appsData, ...props }: AppSelectorProps) {
     const [open, setOpen] = React.useState(false)
-    const [selectedApp, setSelectedApp] = React.useState<AppData | undefined>(defaultApp)
+    const [selectedApp, setSelectedApp] = React.useState<AppData | undefined>()
     const router = useRouter()
+    const { useApp } = useHeaderStore()
+
+    useEffect(() => {
+        if (useApp) {
+            setSelectedApp(useApp)
+        } else {
+            setSelectedApp(undefined)
+        }
+    }, [useApp])
 
     return (
         <Popover open={open} onOpenChange={setOpen} {...props}>

@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/header'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -32,9 +33,10 @@ export const RootLayoutComponent = ({
   return (
     <>
       <AppHeader />
-      <div className="container mx-auto px-2">
+      <div className="container mx-auto px-4 ">
         {children}
       </div>
+      <Toaster />
     </>
   )
 }

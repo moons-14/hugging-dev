@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useSettingStore } from "@/stores/settingStore"
+import { ExternalLink } from "lucide-react"
 
 export function ApiKeySetting() {
 
@@ -49,16 +50,18 @@ export function ApiKeySetting() {
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="hugging-face-api-key">Hugging Face API KEY</Label>
+                        <Label htmlFor="hugging-face-api-key">
+                            <a href="https://huggingface.co/settings/tokens" target="_blank" rel="noreferrer">
+                                Hugging Face API KEY
+                                <ExternalLink className="inline-block ml-2" size={14} />
+                            </a>
+                        </Label>
                         <Input id="hugging-face-api-key" placeholder="Hugging Face API KEY"
                             value={huggingFaceApiKey}
                             onChange={(e) => setHuggingFaceApiKey(e.target.value)}
                         />
                     </div>
                 </div>
-                <DialogFooter>
-                    <Button type="submit">Save</Button>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     )
